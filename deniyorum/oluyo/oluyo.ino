@@ -2,7 +2,6 @@
 #include <MCUFRIEND_kbv.h>
 #include "TouchScreen.h"
 
-// Renkler
 #define BLACK   0x0000
 #define RED     0xF800
 #define GREEN   0x07E0
@@ -14,7 +13,6 @@
 #define ORANGE  0xFD20
 #define PURPLE  0x8010
 
-// Dokunmatik ayarları
 #define TS_MINX 150
 #define TS_MAXX 920
 #define TS_MINY 120
@@ -30,44 +28,50 @@
 MCUFRIEND_kbv tft(A3, A2, A1, A0, A4);
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
-// Buton düzeni
 #define BUTTON_ROWS 3
 #define BUTTON_COLUMNS 3
 #define BUTTON_SPACING 10
 
+int currentPage = 0; // 0: Ana Sayfa, 1: Sayfa 2
+const int totalPages = 2;
+
 bool buttonPressed[9] = {false};
 bool lastButtonState[9] = {false};
 
-// Buton renkleri (9 farklı buton)
 uint16_t buttonColors[9] = {
   RED, GREEN, BLUE, YELLOW,
   CYAN, MAGENTA, ORANGE, PURPLE,
   WHITE
 };
 
-
-
-// Gönderilecek komutlar
-const char* buttonCommands[9] = {
-  "CMD: VOLUME_DOWN",
-  "CMD: VOLUME_UP",
-  "CMD: BRIGHTNESS_DOWN",
-  "CMD: BRIGHTNESS_UP",
-  "CMD: OPEN_BROWSER",
-  "CMD: CLOSE_APP",
-  "CMD: LOCK_SCREEN",
-  "CMD: ALT_TAB",
-  "CMD: CUSTOM"
+const char* buttonCommandsPage1[9] = {
+  "CMD: VOLUME_DOWN", "CMD: VOLUME_UP", "CMD: BRIGHTNESS_DOWN",
+  "CMD: BRIGHTNESS_UP", "CMD: OPEN_BROWSER", "CMD: CLOSE_APP",
+  "CMD: LOCK_SCREEN", "CMD: ALT_TAB", "PAGE: NEXT"
 };
 
-// Buton yazıları
-const char* buttonLabels[9] = {
+const char* buttonLabelsPage1[9] = {
   "SES-", "SES+", "PRLK-",
   "PRLK+", "GOOGLE", "ALT+F4",
   "LOCK", "ALT+TAB", ">"
 };
 
-// Konum ve boyut
+// Sadece test için sayfa 2 içeriği
+const char* buttonCommandsPage2[9] = {
+  "CMD: 1", "CMD: 2", "CMD: 3",
+  "CMD: 4", "CMD: 5", "CMD: 6",
+  "CMD: 7", "CMD: 8", "PAGE: BACK"
+};
+
+const char* buttonLabelsPage2[9] = {
+  "1", "2", "3",
+  "4", "5", "6",
+  "7", "8", "<"
+};
+
+const char** buttonCommands = buttonCommandsPage1;
+const char** buttonLabels = buttonLabelsPage1;
+
 int buttonX[9];
 int buttonY[9];
 int buttonWidth;
@@ -78,12 +82,10 @@ void setup() {
   Serial1.begin(9600);
 
   uint16_t ID = tft.readID();
-
   tft.begin(ID);
   tft.setRotation(0);
+  tft.fillScreen(BLACK);
 
-  tft.fillScreen(BLACK); // Ekran arka planı siyah
- 
   buttonWidth = (tft.width() - (BUTTON_COLUMNS + 1) * BUTTON_SPACING) / BUTTON_COLUMNS;
   buttonHeight = (tft.height() - (BUTTON_ROWS + 1) * BUTTON_SPACING) / BUTTON_ROWS;
 
@@ -93,11 +95,9 @@ void setup() {
 
     buttonX[i] = BUTTON_SPACING + col * (buttonWidth + BUTTON_SPACING);
     buttonY[i] = BUTTON_SPACING + row * (buttonHeight + BUTTON_SPACING);
-
-    drawButton(i, false); // Başlangıçta basılı değil
   }
 
-  Serial.println("Hazır!");
+  drawButtons();
 }
 
 void loop() {
@@ -130,13 +130,40 @@ void loop() {
       lastButtonState[i] = buttonPressed[i];
 
       if (buttonPressed[i]) {
-        Serial1.println(buttonCommands[i]);
-        Serial.println(buttonCommands[i]);
+        if (strcmp(buttonCommands[i], "PAGE: NEXT") == 0) {
+          currentPage = 1;
+          switchPage();
+        } else if (strcmp(buttonCommands[i], "PAGE: BACK") == 0) {
+          currentPage = 0;
+          switchPage();
+        } else {
+          Serial1.println(buttonCommands[i]);
+          Serial.println(buttonCommands[i]);
+        }
       }
     }
   }
 
   delay(50);
+}
+
+void switchPage() {
+  if (currentPage == 0) {
+    buttonCommands = buttonCommandsPage1;
+    buttonLabels = buttonLabelsPage1;
+  } else {
+    buttonCommands = buttonCommandsPage2;
+    buttonLabels = buttonLabelsPage2;
+  }
+
+  drawButtons();
+}
+
+void drawButtons() {
+  tft.fillScreen(BLACK);
+  for (int i = 0; i < 9; i++) {
+    drawButton(i, false);
+  }
 }
 
 void drawButton(int i, bool pressed) {
@@ -159,5 +186,5 @@ void drawButton(int i, bool pressed) {
 
   tft.setCursor(x, y);
   tft.print(buttonLabels[i]);
-   tft.invertDisplay(true);
+  tft.invertDisplay(true);
 }

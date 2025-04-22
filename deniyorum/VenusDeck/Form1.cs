@@ -23,9 +23,9 @@ namespace VenusDeck
     {
         SerialPort serial;
         int currentBrightness;
+        int currentPage = 1; // 🔄 Sayfa takibi
 
-        // 8 butonun doğrudan komut atamaları
-        CommandType[] commandMappings = new CommandType[8]
+        CommandType[] commandMappingsPage1 = new CommandType[8]
         {
             CommandType.VolumeDown,
             CommandType.VolumeUp,
@@ -43,7 +43,7 @@ namespace VenusDeck
 
             currentBrightness = GetCurrentBrightness();
 
-            serial = new SerialPort("COM4", 9600);
+            serial = new SerialPort("COM7", 9600);
             serial.DataReceived += Serial_DataReceived;
 
             try
@@ -56,27 +56,25 @@ namespace VenusDeck
                 MessageBox.Show("Bağlantı hatası: " + ex.Message);
             }
         }
-
         private void Form1_Load(object sender, System.EventArgs e)
         {
-         
+
         }
 
         private int GetCurrentBrightness()
         {
             try
             {
-                var mclass = new System.Management.ManagementClass("WmiMonitorBrightness");
-                mclass.Scope = new System.Management.ManagementScope(@"\\.\root\wmi");
+                var mclass = new ManagementClass("WmiMonitorBrightness");
+                mclass.Scope = new ManagementScope(@"\\.\root\wmi");
                 foreach (var o in mclass.GetInstances())
                 {
-                    var mo = (System.Management.ManagementObject)o;
+                    var mo = (ManagementObject)o;
                     return Convert.ToInt32(mo.GetPropertyValue("CurrentBrightness"));
                 }
             }
             catch
             {
-                // Eğer okuma başarısız olursa varsayılan 50
                 return 50;
             }
 
@@ -94,23 +92,49 @@ namespace VenusDeck
 
         private void HandleCommand(string cmd)
         {
-            Console.WriteLine("Gelen komut: " + cmd);
+            Console.WriteLine($"Sayfa {currentPage} - Gelen komut: {cmd}");
 
-            const string prefix = "CMD: ";
-            if (!cmd.StartsWith(prefix)) return;
-
-            // get the part after "CMD: "
-            string name = cmd.Substring(prefix.Length).Trim();       // e.g. "VOLUME_DOWN"
-                                                                     // turn "VOLUME_DOWN" into "VolumeDown" to match your enum names
-            name = name.Replace("_", "");
-
-            if (Enum.TryParse<CommandType>(name, true, out var ct))
+            if (cmd == "CMD: >")
             {
-                ExecuteCommand(ct);
+                currentPage = 2;
+                Console.WriteLine("👉 Sayfa 2'ye geçildi.");
+                return;
             }
-            else
+
+            if (cmd == "CMD: <")
             {
-                Console.WriteLine("Unknown command: " + name);
+                currentPage = 1;
+                Console.WriteLine("👈 Sayfa 1'e dönüldü.");
+                return;
+            }
+
+            if (currentPage == 1)
+            {
+                const string prefix = "CMD: ";
+                if (!cmd.StartsWith(prefix)) return;
+
+                string name = cmd.Substring(prefix.Length).Trim();
+                name = name.Replace("_", "");
+
+                if (Enum.TryParse<CommandType>(name, true, out var ct))
+                {
+                    ExecuteCommand(ct);
+                }
+                else
+                {
+                    Console.WriteLine("❓ Tanınmayan komut: " + name);
+                }
+            }
+            else if (currentPage == 2)
+            {
+                // Örnek test: 3 tuş için 3 farklı çıktı
+                switch (cmd)
+                {
+                    case "CMD: BTN0": MessageBox.Show("Sayfa 2 - Buton 1"); break;
+                    case "CMD: BTN1": MessageBox.Show("Sayfa 2 - Buton 2"); break;
+                    case "CMD: BTN2": MessageBox.Show("Sayfa 2 - Buton 3"); break;
+                    default: Console.WriteLine("Sayfa 2'de bilinmeyen komut: " + cmd); break;
+                }
             }
         }
 
@@ -161,7 +185,7 @@ namespace VenusDeck
                 CreateNoWindow = true
             });
         }
-        
+
         [DllImport("user32.dll")] static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, uint dwExtraInfo);
         [DllImport("user32.dll")] static extern bool LockWorkStation();
     }
