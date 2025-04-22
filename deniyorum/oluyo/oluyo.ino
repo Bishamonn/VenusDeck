@@ -2,6 +2,7 @@
 #include <MCUFRIEND_kbv.h>
 #include "TouchScreen.h"
 
+// Renkler
 #define BLACK   0x0000
 #define RED     0xF800
 #define GREEN   0x07E0
@@ -13,6 +14,7 @@
 #define ORANGE  0xFD20
 #define PURPLE  0x8010
 
+// Dokunmatik ayarları
 #define TS_MINX 150
 #define TS_MAXX 920
 #define TS_MINY 120
@@ -28,18 +30,25 @@
 MCUFRIEND_kbv tft(A3, A2, A1, A0, A4);
 TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 
-#define BUTTON_ROWS 4
-#define BUTTON_COLUMNS 2
+// Buton düzeni
+#define BUTTON_ROWS 3
+#define BUTTON_COLUMNS 3
+#define BUTTON_SPACING 10
 
-bool buttonPressed[8] = {false};
-bool lastButtonState[8] = {false};
+bool buttonPressed[9] = {false};
+bool lastButtonState[9] = {false};
 
-uint16_t buttonColors[8] = {
+// Buton renkleri (9 farklı buton)
+uint16_t buttonColors[9] = {
   RED, GREEN, BLUE, YELLOW,
-  CYAN, MAGENTA, ORANGE, PURPLE
+  CYAN, MAGENTA, ORANGE, PURPLE,
+  WHITE
 };
 
-const char* buttonCommands[8] = {
+
+
+// Gönderilecek komutlar
+const char* buttonCommands[9] = {
   "CMD: VOLUME_DOWN",
   "CMD: VOLUME_UP",
   "CMD: BRIGHTNESS_DOWN",
@@ -47,42 +56,48 @@ const char* buttonCommands[8] = {
   "CMD: OPEN_BROWSER",
   "CMD: CLOSE_APP",
   "CMD: LOCK_SCREEN",
-  "CMD: ALT_TAB"
+  "CMD: ALT_TAB",
+  "CMD: CUSTOM"
 };
 
-const char* buttonLabels[8] = {
-  "SES -", "SES +", "PARLAK -", "PARLAK +",
-  "TARAYICI", "KAPAT", "KILITLE", "ALT+TAB"
+// Buton yazıları
+const char* buttonLabels[9] = {
+  "SES-", "SES+", "PRLK-",
+  "PRLK+", "GOOGLE", "ALT+F4",
+  "LOCK", "ALT+TAB", ">"
 };
 
-int buttonX[8];
-int buttonY[8];
+// Konum ve boyut
+int buttonX[9];
+int buttonY[9];
 int buttonWidth;
 int buttonHeight;
 
 void setup() {
-  Serial.begin(9600);      // Bilgisayar üzerinden debug için
-  Serial1.begin(9600);     // HC-05 ile haberleşme
+  Serial.begin(9600);
+  Serial1.begin(9600);
 
   uint16_t ID = tft.readID();
+
   tft.begin(ID);
   tft.setRotation(0);
-  tft.fillScreen(BLACK);
 
-  buttonWidth = tft.width() / BUTTON_COLUMNS;
-  buttonHeight = tft.height() / BUTTON_ROWS;
+  tft.fillScreen(BLACK); // Ekran arka planı siyah
+ 
+  buttonWidth = (tft.width() - (BUTTON_COLUMNS + 1) * BUTTON_SPACING) / BUTTON_COLUMNS;
+  buttonHeight = (tft.height() - (BUTTON_ROWS + 1) * BUTTON_SPACING) / BUTTON_ROWS;
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 9; i++) {
     int row = i / BUTTON_COLUMNS;
     int col = i % BUTTON_COLUMNS;
 
-    buttonX[i] = col * buttonWidth;
-    buttonY[i] = row * buttonHeight;
+    buttonX[i] = BUTTON_SPACING + col * (buttonWidth + BUTTON_SPACING);
+    buttonY[i] = BUTTON_SPACING + row * (buttonHeight + BUTTON_SPACING);
 
-    drawButton(i, false);
+    drawButton(i, false); // Başlangıçta basılı değil
   }
 
-  Serial.println("Dokunmatik kontrolcü hazır.");
+  Serial.println("Hazır!");
 }
 
 void loop() {
@@ -93,7 +108,7 @@ void loop() {
   digitalWrite(YP, HIGH);
   digitalWrite(XM, HIGH);
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 9; i++) {
     buttonPressed[i] = false;
   }
 
@@ -101,7 +116,7 @@ void loop() {
     int x = map(p.x, TS_MINX, TS_MAXX, 0, tft.width());
     int y = map(p.y, TS_MINY, TS_MAXY, tft.height(), 0) + 10;
 
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 9; i++) {
       if (x >= buttonX[i] && x < buttonX[i] + buttonWidth &&
           y >= buttonY[i] && y < buttonY[i] + buttonHeight) {
         buttonPressed[i] = true;
@@ -109,14 +124,14 @@ void loop() {
     }
   }
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 9; i++) {
     if (buttonPressed[i] != lastButtonState[i]) {
       drawButton(i, buttonPressed[i]);
       lastButtonState[i] = buttonPressed[i];
 
       if (buttonPressed[i]) {
-        Serial1.println(buttonCommands[i]); // Sadece HC-05'e gönder
-        Serial.println(buttonCommands[i]);  // Debug
+        Serial1.println(buttonCommands[i]);
+        Serial.println(buttonCommands[i]);
       }
     }
   }
@@ -126,11 +141,11 @@ void loop() {
 
 void drawButton(int i, bool pressed) {
   uint16_t fill_color = pressed ? WHITE : buttonColors[i];
-  uint16_t text_color = pressed ? BLACK : WHITE;
-  uint16_t outline_color = WHITE;
+  uint16_t text_color = pressed ? WHITE : BLACK;
+  int radius = 10;
 
-  tft.fillRect(buttonX[i], buttonY[i], buttonWidth, buttonHeight, fill_color);
-  tft.drawRect(buttonX[i], buttonY[i], buttonWidth, buttonHeight, outline_color);
+  tft.fillRoundRect(buttonX[i], buttonY[i], buttonWidth, buttonHeight, radius, fill_color);
+  tft.drawRoundRect(buttonX[i], buttonY[i], buttonWidth, buttonHeight, radius, WHITE);
 
   tft.setTextColor(text_color);
   tft.setTextSize(2);
@@ -144,4 +159,5 @@ void drawButton(int i, bool pressed) {
 
   tft.setCursor(x, y);
   tft.print(buttonLabels[i]);
+   tft.invertDisplay(true);
 }

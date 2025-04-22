@@ -1,0 +1,15 @@
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\obj\Debug\VenusDeck.csproj.AssemblyReference.cache
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\obj\Debug\VenusDeck.Form1.resources
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\obj\Debug\VenusDeck.Properties.Resources.resources
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\obj\Debug\VenusDeck.csproj.GenerateResource.cache
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\obj\Debug\VenusDeck.csproj.CoreCompileInputs.cache
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\bin\Debug\VenusDeck.exe.config
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\bin\Debug\VenusDeck.exe
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\bin\Debug\VenusDeck.pdb
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\bin\Debug\Newtonsoft.Json.dll
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\bin\Debug\Newtonsoft.Json.xml
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\obj\Debug\VenusDeck.csproj.Up2Date
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\obj\Debug\VenusDeck.exe
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\obj\Debug\VenusDeck.pdb
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\bin\Debug\System.CodeDom.dll
+C:\Users\fidan\OneDrive\Masaüstü\Bu dönem de devam amk\Venus Deck\VenusDeck\deniyorum\VenusDeck\bin\Debug\System.CodeDom.xml
