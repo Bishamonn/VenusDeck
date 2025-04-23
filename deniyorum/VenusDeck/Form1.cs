@@ -94,13 +94,13 @@ namespace VenusDeck
         {
             Console.WriteLine($"Sayfa {currentPage} - Gelen komut: {cmd}");
 
+            // 1) Sayfa değişim komutları
             if (cmd == "CMD: >")
             {
                 currentPage = 2;
                 Console.WriteLine("👉 Sayfa 2'ye geçildi.");
                 return;
             }
-
             if (cmd == "CMD: <")
             {
                 currentPage = 1;
@@ -108,13 +108,13 @@ namespace VenusDeck
                 return;
             }
 
+            // 2) Birinci sayfaysa sadece birinci sayfa komutlarını işle
             if (currentPage == 1)
             {
                 const string prefix = "CMD: ";
-                if (!cmd.StartsWith(prefix)) return;
+                if (!cmd.StartsWith(prefix)) return;  // prefix yoksa tamamen yok say
 
-                string name = cmd.Substring(prefix.Length).Trim();
-                name = name.Replace("_", "");
+                string name = cmd.Substring(prefix.Length).Trim().Replace("_", "");
 
                 if (Enum.TryParse<CommandType>(name, true, out var ct))
                 {
@@ -122,17 +122,22 @@ namespace VenusDeck
                 }
                 else
                 {
-                    Console.WriteLine("❓ Tanınmayan komut: " + name);
+                    Console.WriteLine("❓ Sayfa1 tanınmayan komut: " + name);
                 }
             }
+            // 3) İkinci sayfaysa sadece ikinci sayfa komutlarını işle
             else if (currentPage == 2)
             {
-                // Örnek test: 3 tuş için 3 farklı çıktı
                 switch (cmd)
                 {
                     case "CMD: BTN0": MessageBox.Show("Sayfa 2 - Buton 1"); break;
                     case "CMD: BTN1": MessageBox.Show("Sayfa 2 - Buton 2"); break;
                     case "CMD: BTN2": MessageBox.Show("Sayfa 2 - Buton 3"); break;
+                    case "CMD: BTN3": MessageBox.Show("Sayfa 2 - Buton 4"); break;
+                    case "CMD: BTN4": MessageBox.Show("Sayfa 2 - Buton 5"); break;
+                    case "CMD: BTN5": MessageBox.Show("Sayfa 2 - Buton 6"); break;
+                    case "CMD: BTN6": MessageBox.Show("Sayfa 2 - Buton 7"); break;
+                    case "CMD: BTN7": MessageBox.Show("Sayfa 2 - Buton 8"); break;
                     default: Console.WriteLine("Sayfa 2'de bilinmeyen komut: " + cmd); break;
                 }
             }
