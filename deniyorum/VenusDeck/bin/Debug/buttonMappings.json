@@ -1,0 +1,11 @@
+{
+  "Button1": "VolumeDown",
+  "Button2": "VolumeUp",
+  "Button3": "BrightnessDown",
+  "Button4": "BrightnessUp",
+  "Button5": "OpenBrowser",
+  "Button6": "CloseApp",
+  "Button7": "LockScreen",
+  "Button8": "AltTab",
+  "Button9": "CustomAction"
+}
