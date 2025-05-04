@@ -30,23 +30,55 @@ namespace VenusDeck
         SerialPort serial;
         int currentBrightness;
         private Dictionary<string, CommandType> buttonMappings;
+        private Dictionary<string, Label> buttonLabels; // Buton etiketlerini tutacak sözlük
         private string configPath = "buttonMappings.json";
+        private string buttonLabelsPath = "buttonLabels.json"; // Etiketler için ayrı config
+
+        // Komut türlerine karşılık gelen etiketler
+        private readonly Dictionary<CommandType, string> commandLabels = new Dictionary<CommandType, string>
+        {
+            { CommandType.None, "BOŞ" },
+            { CommandType.VolumeUp, "SES+" },
+            { CommandType.VolumeDown, "SES-" },
+            { CommandType.BrightnessUp, "PRLK+" },
+            { CommandType.BrightnessDown, "PRLK-" },
+            { CommandType.OpenBrowser, "GOOGLE" },
+            { CommandType.CloseApp, "KAPAT" },
+            { CommandType.LockScreen, "KİLİT" },
+            { CommandType.AltTab, "ALT+TAB" },
+            { CommandType.CustomAction, "ÖZEL" }
+        };
 
         public Form1()
         {
-            InitializeComponent(); // Bu kesinlikle gerekli!
 
-            // 1) Sözlüğü oluştur, varsayılanları ekle veya var olan config'i yükle
+            // Form'un boyutlarını içeriğe göre otomatik ayarla
+            this.AutoSize = true;
+            this.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+
+            // Minimum boyutu ayarla
+            this.MinimumSize = new System.Drawing.Size(400, 450);
+
+            // Form'u ekranın ortasında başlat
+            this.StartPosition = FormStartPosition.CenterScreen;
+
+
+            InitializeComponent();
+
+            // 1) Sözlükleri oluştur
             buttonMappings = new Dictionary<string, CommandType>();
+            buttonLabels = new Dictionary<string, Label>();
+
+            // 2) Kaydedilmiş config'i yükle
             LoadButtonMappings();
 
-            // 2) Dinamik UI'yi oluştur
+            // 3) Dinamik UI'yi oluştur
             InitializeDynamicUI();
 
-            // 3) Mevcut parlaklığı al
+            // 4) Mevcut parlaklığı al
             currentBrightness = GetCurrentBrightness();
 
-            // 4) Seri port ayarları
+            // 5) Seri port ayarları
             serial = new SerialPort("COM7", 9600);
             serial.DataReceived += Serial_DataReceived;
 
@@ -60,8 +92,9 @@ namespace VenusDeck
                 MessageBox.Show("Bağlantı hatası: " + ex.Message);
             }
 
-            // Form yüklendiğinde ComboBox'ları ayarla
+            // Form yüklendiğinde ComboBox'ları ve etiketleri ayarla
             SetComboBoxValues();
+            UpdateAllButtonLabels();
         }
 
         // ComboBox'ları buttonMappings değerlerine göre ayarlama
@@ -83,10 +116,45 @@ namespace VenusDeck
             }
         }
 
+        // Tüm butonların etiketlerini güncelle
+        private void UpdateAllButtonLabels()
+        {
+            foreach (var pair in buttonMappings)
+            {
+                string buttonName = pair.Key;
+                CommandType command = pair.Value;
+
+                // Button1 -> 1 formatında indekse dönüştür 
+                if (int.TryParse(buttonName.Replace("Button", ""), out int buttonIndex))
+                {
+                    UpdateButtonLabel(buttonIndex, command);
+                }
+            }
+        }
+
+        // Belirli bir butonun etiketini güncelle
+        private void UpdateButtonLabel(int buttonIndex, CommandType command)
+        {
+            // İlgili Label'ı bul
+            if (buttonLabels.TryGetValue($"Button{buttonIndex}", out var label))
+            {
+                // Komuta karşılık gelen etiketi bul
+                if (commandLabels.TryGetValue(command, out string labelText))
+                {
+                    label.Text = $"Buton {buttonIndex}: {labelText}";
+                }
+                else
+                {
+                    label.Text = $"Buton {buttonIndex}: ???";
+                }
+            }
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
-            // Form_Load'da tekrar ComboBox değerlerini ayarla (bazı durumlarda gerekebilir)
+            // Form_Load'da tekrar ComboBox değerlerini ve etiketleri ayarla
             SetComboBoxValues();
+            UpdateAllButtonLabels();
         }
 
         private void InitializeDynamicUI()
@@ -95,18 +163,24 @@ namespace VenusDeck
             {
                 int index = i;
 
+                // Label oluştur
                 Label label = new Label
                 {
+                    Name = $"label{index}",
                     Text = $"Buton {index}:",
                     Location = new System.Drawing.Point(20, 30 * index),
                     AutoSize = true
                 };
                 this.Controls.Add(label);
 
+                // Label'ı sözlüğe kaydet
+                buttonLabels[$"Button{index}"] = label;
+
+                // ComboBox oluştur
                 ComboBox comboBox = new ComboBox
                 {
                     Name = $"comboBox{index}",
-                    Location = new System.Drawing.Point(100, 30 * index),
+                    Location = new System.Drawing.Point(150, 30 * index),
                     Width = 150,
                     DropDownStyle = ComboBoxStyle.DropDownList
                 };
@@ -118,11 +192,13 @@ namespace VenusDeck
                     comboBox.SelectedItem = command;
                 }
 
+                // ComboBox değişiklik eventi
                 comboBox.SelectedIndexChanged += (sender, e) =>
                 {
                     if (comboBox.SelectedItem is CommandType selectedCommand)
                     {
                         buttonMappings[$"Button{index}"] = selectedCommand;
+                        UpdateButtonLabel(index, selectedCommand); // Etiketi güncelle
                     }
                 };
                 this.Controls.Add(comboBox);
@@ -137,7 +213,57 @@ namespace VenusDeck
             };
             btnSave.Click += (sender, e) => SaveButtonMappings();
             this.Controls.Add(btnSave);
+
+            // Arduino'ya Gönder butonu
+            Button btnSendToArduino = new Button
+            {
+                Text = "Arduino'ya Gönder",
+                Location = new System.Drawing.Point(20, 390),
+                Width = 230
+            };
+            btnSendToArduino.Click += (sender, e) => SendConfigToArduino();
+            this.Controls.Add(btnSendToArduino);
         }
+
+        // Remove one of the duplicate SendConfigToArduino methods
+        private void SendConfigToArduino()
+        {
+            if (serial == null || !serial.IsOpen)
+            {
+                MessageBox.Show("Arduino ile bağlantı yok!");
+                return;
+            }
+
+            try
+            {
+                // Her buton için ayrı bir CFG komutu gönder
+                foreach (var pair in buttonMappings)
+                {
+                    // Button1 -> 1 formatında indekse dönüştür 
+                    if (int.TryParse(pair.Key.Replace("Button", ""), out int buttonIndex))
+                    {
+                        // CFG:ButtonIndex:CommandCode formatında komut oluştur
+                        string command = $"CFG:{buttonIndex}:{pair.Value}";
+
+                        // Komutu gönder
+                        serial.WriteLine(command);
+                        Console.WriteLine($"Arduino'ya gönderilen komut: {command}");
+
+                        // Arduino'nun cevabını bekleyin (opsiyonel)
+                        System.Threading.Thread.Sleep(100);
+                    }
+                }
+
+                MessageBox.Show("Tüm buton ayarları Arduino'ya gönderildi!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Arduino'ya gönderim hatası: {ex.Message}");
+            }
+        }
+
+
+
 
         private void InitializeButtonMappings()
         {
@@ -218,7 +344,7 @@ namespace VenusDeck
                 var jsonObject = new JObject();
                 foreach (var pair in buttonMappings)
                 {
-                    // Enum değerini doğrudan string olarak ekle - tırnak işaretleri olmadan
+                    // Enum değerini doğrudan string olarak ekle
                     jsonObject[pair.Key] = pair.Value.ToString();
                 }
 
@@ -234,6 +360,7 @@ namespace VenusDeck
                 MessageBox.Show($"Config dosyası kaydedilirken hata oluştu: {ex.Message}");
             }
         }
+
 
         private int GetCurrentBrightness()
         {
