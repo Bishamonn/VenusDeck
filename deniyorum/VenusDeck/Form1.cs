@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using System.Drawing;
 
 namespace VenusDeck
 {
@@ -28,6 +29,7 @@ namespace VenusDeck
 
     public partial class Form1 : Form
     {
+
         SerialPort serial;
         int currentBrightness;
         private Dictionary<string, Dictionary<string, CommandType>> profiles;
@@ -57,6 +59,12 @@ namespace VenusDeck
 
         public Form1()
         {
+
+            this.MinimizeBox = true;
+            // Büyültme/geri al (maximize) butonunu kapat
+            this.MaximizeBox = false;
+            // (İstersen) Form kenarını sabitlemek için:
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
             // Form'un boyutlarını içeriğe göre otomatik ayarla
             this.AutoSize = true;
             this.AutoSizeMode = AutoSizeMode.GrowAndShrink;
@@ -145,18 +153,10 @@ namespace VenusDeck
         // Belirli bir butonun etiketini güncelle
         private void UpdateButtonLabel(int buttonIndex, CommandType command)
         {
-            // İlgili Label'ı bul
             if (buttonLabels.TryGetValue($"Button{buttonIndex}", out var label))
             {
-                // Komuta karşılık gelen etiketi bul
-                if (commandLabels.TryGetValue(command, out string labelText))
-                {
-                    label.Text = $"Buton {buttonIndex}: {labelText}";
-                }
-                else
-                {
-                    label.Text = $"Buton {buttonIndex}: ???";
-                }
+                // Sadece numarayı gösteriyoruz
+                label.Text = $"Buton {buttonIndex}:";
             }
         }
 
@@ -294,24 +294,30 @@ namespace VenusDeck
                 this.Controls.Add(comboBox);
             }
 
+            int startY = 70;
+            int itemHeight = 30;
+            int lastComboboxBottom = startY + itemHeight * 9;  // 70 + 9*30 = 340
+
+            int gap = 10;  // araya 10px boşluk koyalım
+
             // Son olarak "Kaydet" butonu ekleyelim
             Button btnSave = new Button
             {
                 Text = "Değişiklikleri Kaydet",
-                Location = new System.Drawing.Point(20, 70 + 9 * 30 + 20),
+                Location = new Point((this.ClientSize.Width - 230) / 2, 70 + 9 * 30 + 20 + gap),
                 Width = 230
             };
-            btnSave.Click += (sender, e) => SaveButtonMappings();
+            btnSave.Click += (s, e) => SaveButtonMappings();
             this.Controls.Add(btnSave);
 
             // Arduino'ya Gönder butonu
             Button btnSendToArduino = new Button
             {
                 Text = "Arduino'ya Gönder",
-                Location = new System.Drawing.Point(20, 70 + 9 * 30 + 60),
+                Location = new Point((this.ClientSize.Width - 230) / 2, 70 + 9 * 30 + 60 + gap),
                 Width = 230
             };
-            btnSendToArduino.Click += (sender, e) => SendConfigToArduino();
+            btnSendToArduino.Click += (s, e) => SendConfigToArduino();
             this.Controls.Add(btnSendToArduino);
         }
 
@@ -731,7 +737,17 @@ namespace VenusDeck
                     System.Diagnostics.Process.Start("https://www.google.com");
                     break;
                 case CommandType.CloseApp:
-                    Application.Exit();
+                    this.WindowState = FormWindowState.Minimized;
+
+                    // 2) Kısa pause ver:
+                    System.Threading.Thread.Sleep(100);
+
+                    // 3) Gerçek Alt+F4 tuş vuruşunu simüle et:
+                    keybd_event((byte)Keys.Menu, 0, 0, 0);      // Alt down
+                    keybd_event((byte)Keys.F4, 0, 0, 0);      // F4 down
+                    keybd_event((byte)Keys.F4, 0, 2, 0);      // F4 up
+                    keybd_event((byte)Keys.Menu, 0, 2, 0);      // Alt up
+                    break;
                     break;
                 case CommandType.LockScreen:
                     LockWorkStation();
