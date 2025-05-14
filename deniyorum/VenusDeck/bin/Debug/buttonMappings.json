@@ -1,11 +1,27 @@
 {
-  "Button1": "AltTab",
-  "Button2": "VolumeUp",
-  "Button3": "BrightnessDown",
-  "Button4": "BrightnessUp",
-  "Button5": "OpenBrowser",
-  "Button6": "CloseApp",
-  "Button7": "LockScreen",
-  "Button8": "AltTab",
-  "Button9": "CustomAction"
+  "profiles": {
+    "Default": {
+      "Button1": "VolumeDown",
+      "Button2": "VolumeUp",
+      "Button3": "BrightnessDown",
+      "Button4": "BrightnessUp",
+      "Button5": "OpenBrowser",
+      "Button6": "CloseApp",
+      "Button7": "LockScreen",
+      "Button8": "AltTab",
+      "Button9": "CustomAction"
+    },
+    "2. Profil": {
+      "Button1": "CustomAction",
+      "Button2": "AltTab",
+      "Button3": "LockScreen",
+      "Button4": "CloseApp",
+      "Button5": "OpenBrowser",
+      "Button6": "BrightnessDown",
+      "Button7": "BrightnessUp",
+      "Button8": "VolumeDown",
+      "Button9": "VolumeUp"
+    }
+  },
+  "currentProfile": "Default"
 }
