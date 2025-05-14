@@ -3,7 +3,7 @@
   "WorkspaceRootPath": "C:\\Users\\fidan\\OneDrive\\Masa\u00FCst\u00FC\\Bu d\u00F6nem de devam amk\\Venus Deck\\VenusDeck\\deniyorum\\VenusDeck\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{71988905-303F-44A4-A1F3-A8E0AA6B6DDC}|VenusDeck.csproj|C:\\Users\\fidan\\OneDrive\\Masa\u00FCst\u00FC\\Bu d\u00F6nem de devam amk\\Venus Deck\\VenusDeck\\deniyorum\\VenusDeck\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{71988905-303F-44A4-A1F3-A8E0AA6B6DDC}|VenusDeck.csproj|c:\\users\\fidan\\onedrive\\masa\u00FCst\u00FC\\bu d\u00F6nem de devam amk\\venus deck\\venusdeck\\deniyorum\\venusdeck\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{71988905-303F-44A4-A1F3-A8E0AA6B6DDC}|VenusDeck.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -33,8 +33,7 @@
               "ToolTip": "C:\\Users\\fidan\\OneDrive\\Masa\u00FCst\u00FC\\Bu d\u00F6nem de devam amk\\Venus Deck\\VenusDeck\\deniyorum\\VenusDeck\\Properties\\Resources.resx",
               "RelativeToolTip": "Properties\\Resources.resx",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
-              "WhenOpened": "2025-05-08T17:41:28.774Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-08T17:41:28.774Z"
             },
             {
               "$type": "Document",
@@ -44,7 +43,7 @@
               "RelativeDocumentMoniker": "Form1.cs",
               "ToolTip": "C:\\Users\\fidan\\OneDrive\\Masa\u00FCst\u00FC\\Bu d\u00F6nem de devam amk\\Venus Deck\\VenusDeck\\deniyorum\\VenusDeck\\Form1.cs*",
               "RelativeToolTip": "Form1.cs*",
-              "ViewState": "AgIAAPMAAAAAAAAAAAASwAABAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABMDAAAAAAAAAAAkwCgDAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-10T17:51:03.006Z",
               "EditorCaption": ""
@@ -55,11 +54,10 @@
               "Title": "Form1.cs [Tasar\u0131m]",
               "DocumentMoniker": "C:\\Users\\fidan\\OneDrive\\Masa\u00FCst\u00FC\\Bu d\u00F6nem de devam amk\\Venus Deck\\VenusDeck\\deniyorum\\VenusDeck\\Form1.cs",
               "RelativeDocumentMoniker": "Form1.cs",
-              "ToolTip": "C:\\Users\\fidan\\OneDrive\\Masa\u00FCst\u00FC\\Bu d\u00F6nem de devam amk\\Venus Deck\\VenusDeck\\deniyorum\\VenusDeck\\Form1.cs [Tasar\u0131m]*",
-              "RelativeToolTip": "Form1.cs [Tasar\u0131m]*",
+              "ToolTip": "C:\\Users\\fidan\\OneDrive\\Masa\u00FCst\u00FC\\Bu d\u00F6nem de devam amk\\Venus Deck\\VenusDeck\\deniyorum\\VenusDeck\\Form1.cs [Tasar\u0131m]",
+              "RelativeToolTip": "Form1.cs [Tasar\u0131m]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-10T17:50:53.167Z",
-              "EditorCaption": " [Tasar\u0131m]"
+              "WhenOpened": "2025-04-10T17:50:53.167Z"
             }
           ]
         }

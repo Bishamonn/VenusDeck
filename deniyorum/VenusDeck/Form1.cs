@@ -53,6 +53,7 @@ namespace VenusDeck
                 { CommandType.CustomAction, "ÖZEL" }
             };
         private bool isInitializing = false;
+        private ComboBox portComboBox;
 
         public Form1()
         {
@@ -178,6 +179,34 @@ namespace VenusDeck
             };
             this.Controls.Add(profileLabel);
 
+            // --- PORT LABEL ve PORT COMBOBOX SADECE BİR KEZ EKLENİR ---
+            Label portLabel = new Label
+            {
+                Text = "Seri Port:",
+                Location = new System.Drawing.Point(20, 40),
+                AutoSize = true,
+                ForeColor = System.Drawing.Color.White
+            };
+            this.Controls.Add(portLabel);
+
+            portComboBox = new ComboBox
+            {
+                Name = "portComboBox",
+                Location = new System.Drawing.Point(150, 40),
+                Width = 250,
+                DropDownStyle = ComboBoxStyle.DropDownList
+            };
+            var portList = GetPortNamesWithDescriptions();
+            foreach (var tuple in portList)
+            {
+                portComboBox.Items.Add(tuple.Item2); // Açıklama ile ekle
+            }
+            if (portComboBox.Items.Count > 0)
+                portComboBox.SelectedIndex = 0;
+            portComboBox.SelectedIndexChanged += PortComboBox_SelectedIndexChanged;
+            this.Controls.Add(portComboBox);
+            // ---------------------------------------------------------
+
             profileComboBox = new ComboBox
             {
                 Name = "profileComboBox",
@@ -225,7 +254,7 @@ namespace VenusDeck
                 {
                     Name = $"label{index}",
                     Text = $"Buton {index}:",
-                    Location = new System.Drawing.Point(20, 40 + 30 * index),
+                    Location = new System.Drawing.Point(20, 70 + 30 * index),
                     AutoSize = true,
                     ForeColor = System.Drawing.Color.White
                 };
@@ -238,7 +267,7 @@ namespace VenusDeck
                 ComboBox comboBox = new ComboBox
                 {
                     Name = $"comboBox{index}",
-                    Location = new System.Drawing.Point(150, 40 + 30 * index),
+                    Location = new System.Drawing.Point(150, 70 + 30 * index),
                     Width = 150,
                     DropDownStyle = ComboBoxStyle.DropDownList
                 };
@@ -269,7 +298,7 @@ namespace VenusDeck
             Button btnSave = new Button
             {
                 Text = "Değişiklikleri Kaydet",
-                Location = new System.Drawing.Point(20, 40 + 9 * 30 + 20),
+                Location = new System.Drawing.Point(20, 70 + 9 * 30 + 20),
                 Width = 230
             };
             btnSave.Click += (sender, e) => SaveButtonMappings();
@@ -279,7 +308,7 @@ namespace VenusDeck
             Button btnSendToArduino = new Button
             {
                 Text = "Arduino'ya Gönder",
-                Location = new System.Drawing.Point(20, 40 + 9 * 30 + 60),
+                Location = new System.Drawing.Point(20, 70 + 9 * 30 + 60),
                 Width = 230
             };
             btnSendToArduino.Click += (sender, e) => SendConfigToArduino();
@@ -759,5 +788,67 @@ namespace VenusDeck
 
         [DllImport("user32.dll")]
         static extern bool LockWorkStation();
+        private void PortComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (serial != null)
+            {
+                if (serial.IsOpen)
+                {
+                    // Event handler'ı kaldır
+                    serial.DataReceived -= Serial_DataReceived;
+                    try
+                    {
+                        serial.Close();
+                    }
+                    catch (IOException ex)
+                    {
+                        MessageBox.Show("Port kapatılırken hata: " + ex.Message);
+                    }
+                }
+                serial.Dispose();
+                serial = null;
+            }
+
+            // Seçili açıklamadan port adını ayıkla
+            string selectedText = portComboBox.SelectedItem.ToString();
+            int idx1 = selectedText.LastIndexOf("(COM");
+            int idx2 = selectedText.LastIndexOf(")");
+            string selectedPort = selectedText.Substring(idx1 + 1, idx2 - idx1 - 1); // Örn: "COM7"
+
+            serial = new SerialPort(selectedPort, 9600);
+            serial.DataReceived += Serial_DataReceived;
+
+            try
+            {
+                serial.Open();
+                MessageBox.Show("Bağlantı başarılı: " + selectedPort);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Bağlantı hatası: " + ex.Message);
+            }
+        }
+        private List<Tuple<string, string>> GetPortNamesWithDescriptions()
+        {
+            var portList = new List<Tuple<string, string>>();
+            using (var searcher = new System.Management.ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity WHERE Name LIKE '%(COM%'"))
+            {
+                foreach (var obj in searcher.Get())
+                {
+                    string name = obj["Name"]?.ToString();
+                    if (name != null)
+                    {
+                        // Örnek: "USB-SERIAL CH340 (COM7)"
+                        int idx = name.LastIndexOf("(COM");
+                        if (idx >= 0)
+                        {
+                            string port = name.Substring(idx + 1).TrimEnd(')');
+                            portList.Add(Tuple.Create(port, name));
+                        }
+                    }
+                }
+            }
+            return portList;
+        }
     }
 }
